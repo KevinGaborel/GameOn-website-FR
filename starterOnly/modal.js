@@ -1,9 +1,12 @@
 function editNav() {
-  var x = document.getElementById("myTopnav");
-  if (x.className === "topnav") {
-    x.className += " responsive";
+  const headerElt = document.getElementById("myTopnav");
+  const iconElt = headerElt.querySelector('.icon');
+  if (headerElt.className === "topnav") {
+    headerElt.className += " responsive";
+    iconElt.style.color = 'white';
   } else {
-    x.className = "topnav";
+    headerElt.className = "topnav";
+    iconElt.style.color = '#f00';
   }
 }
 
@@ -13,6 +16,7 @@ const modalBodyElt = modalbg.querySelector(".modal-body");
 const modalBtn = document.querySelectorAll(".modal-btn");
 const formData = document.querySelectorAll(".formData");
 const closeModalElt = document.querySelector(".close");
+const formElt = document.querySelector('form');
 
 // variable qui va déterminée le nombre de caractères requis
 const minimumCaractere = 2;
@@ -27,6 +31,8 @@ const strWarningName = `Doit contenir 2 caractères minimum`;
 const strWarningMail = "L'adresse électronique est invalide.";
 const strWarningNbTournament = "Une valeur numérique entière et positif doit-être saisie"
 const strWarningBirthdate = "Votre date de naissance est invalide";
+const strWarningWishTournament = "Veuillez choisir un tournoi";
+const strWarningConditions = "Vous devez accepter les conditions d'utilisation";
 
 // objet qui permet de savoir si le formulaire est correctement rempli
 let formValidator = {
@@ -37,6 +43,11 @@ let formValidator = {
   NumberTournament: false,
   wishTournament: false,
   conditions: true
+};
+
+// fonction pour clean le formulaire
+function cleanForm(){
+  formElt.reset();
 };
 
 // launch modal event
@@ -53,7 +64,16 @@ function launchModal() {
 // close modal form
 function closeModal() {
   modalbg.style.display = "none";
+
+
+  const successContainerElt = document.getElementById('successContainer');
+  // si on veut fermer la modal après s'être inscrit
+  if (successContainerElt){
+    modalBodyElt.removeChild(successContainerElt);
+    cleanForm();
+  }
 }
+
 
 
 // fonction qui se charge d'afficher ou non un message d'erreur
@@ -99,6 +119,13 @@ function borderWarning(warning, input){
   }
 }
 
+// fonction qui retourne un noeud span, a besoin d'un id
+function createSpan(id){
+  const spanWarningElt = document.createElement("span");
+  spanWarningElt.id = id;
+  return spanWarningElt;
+}
+
 // pour chaque élément du tableau, on lui applique un écouteur d'événement de tyle input, à chaque modification d'une valeur de l'input
 formData.forEach((form, index) => form.addEventListener("input", () => {
   // on cible l'input de la partie du formulaire
@@ -130,8 +157,8 @@ formData.forEach((form, index) => form.addEventListener("input", () => {
       if(document.getElementById(idWarning)){
         return;
       }
-      const spanWarningElt = document.createElement("span");
-      spanWarningElt.id = idWarning;
+
+      const spanWarningElt = createSpan(idWarning);
 
       // on utilise les deux fonctions crée précédemment
       borderWarning(true, inputElt);
@@ -170,8 +197,7 @@ formData.forEach((form, index) => form.addEventListener("input", () => {
       }
 
       borderWarning(true, inputElt);
-      const spanWarningElt = document.createElement("span");
-      spanWarningElt.id = idWarning;
+      const spanWarningElt = createSpan(idWarning);
       textWarning({warning: true, parent: form, child: spanWarningElt, text: strWarningMail});
 
       // on indique que cet input n'est pas correctement rempli
@@ -203,8 +229,7 @@ formData.forEach((form, index) => form.addEventListener("input", () => {
       }
 
       borderWarning(true, inputElt);
-      const spanWarningElt = document.createElement("span");
-      spanWarningElt.id = idWarning;
+      const spanWarningElt = createSpan(idWarning);
       textWarning({warning: true, parent: form, child: spanWarningElt, text: strWarningBirthdate});
 
       // on indique que cet input n'est pas correctement rempli
@@ -233,8 +258,7 @@ formData.forEach((form, index) => form.addEventListener("input", () => {
       }
 
       borderWarning(true, inputElt);
-      const spanWarningElt = document.createElement("span");
-      spanWarningElt.id = idWarning;
+      const spanWarningElt = createSpan(idWarning);
       textWarning({warning: true, parent: form, child: spanWarningElt, text: strWarningNbTournament});
 
       // on indique que cet input n'est pas correctement rempli
@@ -245,12 +269,22 @@ formData.forEach((form, index) => form.addEventListener("input", () => {
   // si c'est l'index 5 alors c'est l'input des tournois de l'année
   else if (index === 5){
       formValidator[inputName[index]] = true;
+     
+      if (document.getElementById(idWarning)){
+        borderWarning(false, inputElt);
+        textWarning({warning: false, parent: form, id: idWarning});
+      } 
     } 
 
   // si c'est l'index 6 alors c'est l'input des conditions d'utilisation
   else if (index === 6){
     // le formValidator va prendre la valeur true ou false en fonction de si il est coché ou non 
     formValidator[inputName[index]] = inputElt.checked;
+
+    if (document.getElementById(idWarning)){
+      borderWarning(false, inputElt);
+      textWarning({warning: false, parent: form, id: idWarning});
+    } 
   }
   
 }));
@@ -265,28 +299,80 @@ function validate(event){
   for (input in formValidator){
     //on passe chaque élément de l'objet, si un est false, alors resultForm devient false, le formulaire ne
     // sera pas envoyer
+
+    // si la valeur est false
     if (!formValidator[input]){
-      return resultForm = false;
+      const idWarning = `${input}Warning`;
+      const spanWarningElt = createSpan(idWarning);
+      const inputName = ['firstName', 'name', 'mail', 'bithDate', 'NumberTournament', 'wishTournament', 'conditions', 'wishNotified']
+      
+      // on récupère l'index de l'input dans le tableau inputName, en fonction du nom de l'input
+      const indexInput = inputName.indexOf(input);
+
+      // on garde dans le tableau formData, la partie contenant l'input que l'on veut, en indiquant son index
+      const formElt = formData[indexInput];
+
+      // on cherche le premier elt input de la partie du formulaire gardé
+      const inputElt = formElt.querySelector('input');
+
+      // variable qui va contenir le message d'erreur en fonction de l'index de l'input
+      let stringWarning;
+     
+      if (indexInput < 2){
+        stringWarning = strWarningName;
+      } else if (indexInput === 2){
+        stringWarning = strWarningMail;
+      } else if (indexInput === 3){
+        stringWarning = strWarningBirthdate;
+      } else if (indexInput === 4){
+        stringWarning = strWarningNbTournament;
+      } else if (indexInput === 5){
+        stringWarning = strWarningWishTournament;
+      } else if (indexInput === 6){
+        stringWarning = strWarningConditions;
+      }
+
+      // si l'elt warning n'existe pas, on a besoin d'en créer un
+      if(!document.getElementById(idWarning)){
+        borderWarning(true, inputElt);
+        textWarning({warning: true, parent: formElt, child: spanWarningElt, text: stringWarning});
+      } 
+   
+      //on indique que le formulaire ne peut pas être envoyer
+      resultForm = false;
+
     }
   }
 
   // si le formulaire peut être envoyer
   if (resultForm){
     // on crée le message de succès, une div avec un contenu
-    const success = document.createElement('div');
-    success.textContent = "Merci pour votre inscription";
+    const successContainerElt = document.createElement('div');
+    successContainerElt.id = 'successContainer';
+
+    const btnCloseElt = document.createElement('button');
+    btnCloseElt.textContent = 'Fermer';
+    btnCloseElt.className = "btn-signup modal-btn";
+
+    successContainerElt.textContent = "Merci pour votre inscription";
     // puis on le stylise
-    success.style.backgroundColor = "#232323";
-    success.style.width = "100%";
-    success.style.height = "calc(100% - 47px)";
-    success.style.position = "absolute";
-    success.style.top = '47px';
-    success.style.left = "0px";
-    success.style.display = "flex";
-    success.style.justifyContent = "center";
-    success.style.alignItems = "center";
+    successContainerElt.style.backgroundColor = "#232323";
+    successContainerElt.style.width = "100%";
+    successContainerElt.style.height = "calc(100% - 47px)";
+    successContainerElt.style.position = "absolute";
+    successContainerElt.style.top = '47px';
+    successContainerElt.style.left = "0px";
+    successContainerElt.style.display = "flex";
+    successContainerElt.style.flexDirection = 'column';
+    successContainerElt.style.justifyContent = "center";
+    successContainerElt.style.alignItems = "center";
    
+    // ensuite on l'inclut dans le noeud de successContainerElt
+    successContainerElt.appendChild(btnCloseElt);
+
     // ensuite on l'inclut dans le DOM, dans l'elt parent modalBodyElt
-    modalBodyElt.appendChild(success);
+    modalBodyElt.appendChild(successContainerElt);
+
+    btnCloseElt.addEventListener('click', closeModal);
   }
 }

@@ -20,7 +20,6 @@ const formElt = document.querySelector('form');
 
 // variable qui va déterminée le nombre de caractères requis
 const minimumCaractere = 2;
-
 // le style de la bordure si false
 const borderFalseStyle = "red solid 2px";
 // le style de la bordure si true
@@ -77,33 +76,33 @@ function closeModal() {
 
 
 // fonction qui se charge d'afficher ou non un message d'erreur
-function textWarning(obj){
-/* obj est un objet contenant warning qui est un booléen
+function textWarning({child, parent, warning, text, id}){
+/* warning est un booléen
 parent qui est le noeud parent
 child est l'élément qui a été créer (c'est le message d'erreur) et qui va être rattaché au parent
 text est simplement une string qui va être le message de l'erreur */
 
-  // si obj.warning, c'est qu'il y a une erreur, donc on applique un style
-  if (obj.warning) {
+  // si warning, c'est qu'il y a une erreur, donc on applique un style
+  if (warning) {
     const warningTextColor = "red";
     const fontSizeWarning = "12px";
   
-    obj.child.style.color = warningTextColor;
-    obj.child.style.fontSize = fontSizeWarning;
-    obj.child.textContent = obj.text;
+    child.style.color = warningTextColor;
+    child.style.fontSize = fontSizeWarning;
+    child.textContent = text;
 
-    obj.parent.appendChild(obj.child);
+    parent.appendChild(child);
 
   } else{
     /* pour le else j'ai dans l'objet obj, une autre valeur en plus de warning et parent
     id, qui correspond a l'id de la span du message d'erreur */
 
     // ici je cible le span avec le message d'erreur, ne renverra le noeud que s'il existe
-    const spanWarningElt = document.getElementById(obj.id);
+    const spanWarningElt = document.getElementById(id);
     
     // si le warning existe, le supprime
       if (spanWarningElt) {
-        obj.parent.removeChild(spanWarningElt);
+        parent.removeChild(spanWarningElt);
       }
   }
 

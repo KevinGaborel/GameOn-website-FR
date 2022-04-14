@@ -11,10 +11,10 @@ function editNav() {
 }
 
 // DOM Elements
-const modalbg = document.querySelector(".bground");
-const modalBodyElt = modalbg.querySelector(".modal-body");
-const modalBtn = document.querySelectorAll(".modal-btn");
-const formData = document.querySelectorAll(".formData");
+const modalbgElt = document.querySelector(".bground");
+const modalBodyElt = modalbgElt.querySelector(".modal-body");
+const modalBtnElt = document.querySelectorAll(".modal-btn");
+const formDataElt = document.querySelectorAll(".formData");
 const closeModalElt = document.querySelector(".close");
 const formElt = document.querySelector('form');
 
@@ -50,19 +50,19 @@ function cleanForm(){
 };
 
 // launch modal event
-modalBtn.forEach((btn) => btn.addEventListener("click", launchModal));
+modalBtnElt.forEach((btn) => btn.addEventListener("click", launchModal));
 
 // close modal event
 closeModalElt.addEventListener('click', closeModal);
 
 // launch modal form
 function launchModal() {
-  modalbg.style.display = "block";
+  modalbgElt.style.display = "block";
 }
 
 // close modal form
 function closeModal() {
-  modalbg.style.display = "none";
+  modalbgElt.style.display = "none";
 
 
   const successContainerElt = document.getElementById('successContainer');
@@ -126,12 +126,12 @@ function createSpan(id){
 }
 
 // pour chaque élément du tableau, on lui applique un écouteur d'événement de tyle input, à chaque modification d'une valeur de l'input
-formData.forEach((form, index) => form.addEventListener("input", () => {
+formDataElt.forEach((form, index) => form.addEventListener("input", () => {
   // on cible l'input de la partie du formulaire
   const inputElt = form.querySelector("input");
 
   // tableau qui va me servir pour crée des id pour le message d'erreur, l'index est dans le même ordre que celui des inputs
-  const inputName = ['firstName', 'name', 'mail', 'bithDate', 'NumberTournament', 'wishTournament', 'conditions', 'wishNotified']
+  const inputName = ['firstName', 'name', 'mail', 'bithDate', 'NumberTournament', 'wishTournament', 'conditions', 'wishNotified'];
   const idWarning = `${inputName[index]}Warning`;
 
   // firstName === 0, name === 1, donc si c'est un des deux input
@@ -309,7 +309,7 @@ function validate(event){
       const indexInput = inputName.indexOf(input);
 
       // on garde dans le tableau formData, la partie contenant l'input que l'on veut, en indiquant son index
-      const formElt = formData[indexInput];
+      const formElt = formDataElt[indexInput];
 
       // on cherche le premier elt input de la partie du formulaire gardé
       const inputElt = formElt.querySelector('input');
